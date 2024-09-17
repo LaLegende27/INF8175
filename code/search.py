@@ -164,7 +164,7 @@ def uniformCostSearch(problem:SearchProblem)->List[Direction]:
                 return path
             for (nextState, action, cost) in problem.getSuccessors(state): # il faut voir ceux qui ne sont pas encore visite 
                 newPath = path +[action]
-                newCost = cost + problem.getCostOfActions(newPath)
+                newCost = cost + problem.getCostOfActions(path) # on calcule un peu trop car on prend le total et le courant il faudrait faire path
                 L.push((nextState , newPath),newCost) 
     return []#aucune solution 
 
@@ -204,22 +204,21 @@ def aStarSearch(problem:SearchProblem, heuristic=nullHeuristic)->List[Direction]
         >>> aStarSearch(problem, manhattanHeuristic)
     """
     from util import PriorityQueue 
-    # FONCTION PAS 0/3 pour le autograder
-    L = PriorityQueue() # les noeuds a visiter
+    
+    L = PriorityQueue() 
     f_s = 0 + heuristic(problem.getStartState(),problem)
-    L.push((problem.getStartState(),[]),f_s) # on rajoute la ou il faut aller 
-    dejaVisiter = set() # les noeuds deja visiter 
+    L.push((problem.getStartState(),[]),f_s) 
+    dejaVisiter = set() 
     while not L.isEmpty(): 
-        state, path = L.pop() # sort l'etat avec la plus haute priorite selon f_s
-        if state not in dejaVisiter: # s'il n'est pas visiter
+        state, path = L.pop() 
+        if state not in dejaVisiter: 
             dejaVisiter.add(state)
-            if problem.isGoalState(state): # si on a le bon etat 
+            if problem.isGoalState(state): 
                 return path
-            for (nextState, action, cost) in problem.getSuccessors(state): # il faut voir ceux qui ne sont pas encore visite 
+            for (nextState, action, cost) in problem.getSuccessors(state): 
                 newPath = path +[action]
-                newCost = cost + problem.getCostOfActions(newPath)
-                f_s = newCost +  heuristic(nextState,problem)
-                L.push((nextState , newPath),f_s) 
+                f_s = problem.getCostOfActions(newPath) +  heuristic(nextState,problem) # cout du noeud + estiamtion des couts futures
+                L.update((nextState , newPath),f_s) # si l'etat rajouter est dans le stack deja et qu'on ait calculer une priorite plus haute on change
     return [] 
 
     util.raiseNotDefined()
