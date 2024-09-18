@@ -306,7 +306,7 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        return self.startingPosition 
+        return (self.startingPosition,frozenset()) #on rajoute a notre etat le nombre de jetons mange 
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -317,8 +317,10 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        return state in self.corners 
-         
+        
+        position, coinVisiter = state
+        return set(coinVisiter) == set(self.corners)
+          
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -331,6 +333,7 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
+        (x, y), coinVisiter = state
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
@@ -342,13 +345,20 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
             '''
                 INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
-            '''
-            x, y = state
+            '''    
+
+            
+            
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            
-            if not self.walls[nextx][nexty] : 
-                successors.append(( (nextx,nexty),action, 1)) 
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall : # frappe pas de mur
+                nextPosition = (nextx, nexty)
+                newCoinVisiter = list(coinVisiter)
+                if nextPosition in self.corners: # si un des coins
+                    newCoinVisiter.append(nextPosition)
+                    
+                successors.append(( ( nextPosition, tuple(newCoinVisiter) ),action, 1)) 
             
 
 
