@@ -103,11 +103,11 @@ def depthFirstSearch(problem:SearchProblem)->List[Direction]:
     
     L = Stack()
     L.push((problem.getStartState(),[])) # on rajoute la ou il faut aller 
-    dejaVisiter = set() #pour eviter des loop infini il faut se rappeler des etats deja visiter. 
+    dejaVisiter = [] #pour eviter des loop infini il faut se rappeler des etats deja visiter. 
     while not L.isEmpty(): # jusqu'a temps quon a pas tout visiter
         state, path = L.pop() #etat courant et le chamin emprunter. 
         if state not in dejaVisiter:
-            dejaVisiter.add(state)
+            dejaVisiter.append(state)
             if problem.isGoalState(state): # si on a le bon etat 
                 return path
             for (nextState, action, cost) in problem.getSuccessors(state): # il faut voir ceux qui ne sont pas encore visite 
@@ -129,11 +129,11 @@ def breadthFirstSearch(problem:SearchProblem)->List[Direction]:
     
     L = Queue()
     L.push((problem.getStartState(),[])) # on rajoute la ou il faut aller 
-    dejaVisiter = set() #pour eviter des loop infini il faut se rappeler des etats deja visiter. 
+    dejaVisiter = [] #pour eviter des loop infini il faut se rappeler des etats deja visiter. 
     while not L.isEmpty(): # jusqu'a temps quon a pas tout visiter
         state, path = L.pop() #etat courant et le chamin emprunter. 
         if state not in dejaVisiter:
-            dejaVisiter.add(state)
+            dejaVisiter.append(state)
             if problem.isGoalState(state): # si on a le bon etat 
                 return path
             for (nextState, action, cost) in problem.getSuccessors(state): # il faut voir ceux qui ne sont pas encore visite 
@@ -155,11 +155,11 @@ def uniformCostSearch(problem:SearchProblem)->List[Direction]:
     
     L = PriorityQueue()
     L.push((problem.getStartState(),[]),0) # on rajoute la ou il faut aller 
-    dejaVisiter = set() #pour eviter des loop infini il faut se rappeler des etats deja visiter. 
+    dejaVisiter = [] #pour eviter des loop infini il faut se rappeler des etats deja visiter. 
     while not L.isEmpty(): 
         state, path = L.pop() #etat courant et le chamin emprunter. 
         if state not in dejaVisiter:
-            dejaVisiter.add(state)
+            dejaVisiter.append(state)
             if problem.isGoalState(state): # si on a le bon etat 
                 return path
             for (nextState, action, cost) in problem.getSuccessors(state): # il faut voir ceux qui ne sont pas encore visite 
@@ -208,11 +208,11 @@ def aStarSearch(problem:SearchProblem, heuristic=nullHeuristic)->List[Direction]
     L = PriorityQueue() 
     f_s = 0 + heuristic(problem.getStartState(),problem)
     L.push((problem.getStartState(),[]),f_s) 
-    dejaVisiter = set() 
+    dejaVisiter = [] 
     while not L.isEmpty(): 
         state, path = L.pop() 
         if state not in dejaVisiter: 
-            dejaVisiter.add(state)
+            dejaVisiter.append(state)
             if problem.isGoalState(state): 
                 return path
             for (nextState, action, cost) in problem.getSuccessors(state): 

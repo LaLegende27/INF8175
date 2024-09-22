@@ -294,7 +294,7 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        
+        self._visited, self._visitedlist, self._expanded, self.visualize= {}, [], 0 , True # DO NOT CHANGE
 
 
     def getStartState(self):
@@ -306,7 +306,7 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        return (self.startingPosition,frozenset()) #on rajoute a notre etat le nombre de jetons mange 
+        return (self.startingPosition,[]) #on rajoute a notre etat le nombre de jetons mange 
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -317,10 +317,23 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        
-        position, coinVisiter = state
-        return set(coinVisiter) == set(self.corners)
-          
+        isGoal = False
+        if state[0] in self.corners :
+            if state[0] not in state[1]:
+                state[1].append(state[0])
+            isGoal = len(state[1]) == 4
+
+        # position, coinVisiter = state
+        # return set(coinVisiter) == set(self.corners)
+        # For display purposes only
+        if isGoal and self.visualize:
+            self._visitedlist.append(state[0])
+            import __main__
+            if '_display' in dir(__main__):
+                if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
+                    __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
+
+        return isGoal
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -349,21 +362,41 @@ class CornersProblem(search.SearchProblem):
 
             
             
+            # dx, dy = Actions.directionToVector(action)
+            # nextx, nexty = int(x + dx), int(y + dy)
+            # hitsWall = self.walls[nextx][nexty]
+            # if not hitsWall : # frappe pas de mur
+            #     nextPosition = (nextx, nexty)
+            #     newCoinVisiter = list(coinVisiter)
+            #     if nextPosition in self.corners: # si un des coins
+            #         newCoinVisiter.append(nextPosition)
+                    
+            #     successors.append(( ( nextPosition, tuple(newCoinVisiter) ),action, 1)) 
+            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            hitsWall = self.walls[nextx][nexty]
-            if not hitsWall : # frappe pas de mur
-                nextPosition = (nextx, nexty)
-                newCoinVisiter = list(coinVisiter)
-                if nextPosition in self.corners: # si un des coins
-                    newCoinVisiter.append(nextPosition)
-                    
-                successors.append(( ( nextPosition, tuple(newCoinVisiter) ),action, 1)) 
-            
+
+            cornerVisited = state[1]
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                cornerVisitedList = list(cornerVisited)
+                if nextState in self.corners:
+                    if not nextState in cornerVisitedList:
+                        cornerVisitedList.append(nextState)
+                successors.append(((nextState, cornerVisitedList), action, 1))
+
+            # Bookkeeping for display purposes
+            self._expanded += 1 # DO NOT CHANGE
+            if state[0] not in self._visited:
+                self._visited[state[0]] = True
+                self._visitedlist.append(state[0])
 
 
         self._expanded += 1 # DO NOT CHANGE
+        print(successors)
         return successors
+    
+    
 
     def getCostOfActions(self, actions):
         """
