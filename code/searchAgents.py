@@ -294,8 +294,8 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
+        self.startingState = startingGameState
         self._visited, self._visitedlist, self._expanded, self.visualize= {}, [], 0 , True # DO NOT CHANGE
-
 
     def getStartState(self):
         """
@@ -393,7 +393,6 @@ class CornersProblem(search.SearchProblem):
 
 
         self._expanded += 1 # DO NOT CHANGE
-        print(successors)
         return successors
     
     
@@ -431,7 +430,32 @@ def cornersHeuristic(state, problem):
         INSÉREZ VOTRE SOLUTION À LA QUESTION 6 ICI
     '''
     
-    return 0
+    h1 = 0
+    h2 = 0
+
+    stateX, stateY = state[0]
+    visitedCorners = state[1]
+    
+    notVisitedCorners = [corner for corner in corners if corner not in visitedCorners]
+
+    if len(notVisitedCorners) == 0:
+        return 0
+    
+    # H1 : La somme du coût de la distance manhattan de chaque coins non visité
+    for corner in notVisitedCorners:
+        cornerX, cornerY = corner
+        distance = abs(cornerX - stateX) + abs(cornerY - stateY)
+        h1+= distance
+
+    ## H2 : La somme du coût de la distance de chaque coins non visité en utilisant un bfs
+    h2 = 0
+    for corner in notVisitedCorners:
+        NearestPathCornerProblem = PositionSearchProblem(problem.startingState, start=state[0], goal=corner, warn=False, visualize=False)
+        path = search.bfs(NearestPathCornerProblem)
+        h2 += NearestPathCornerProblem.getCostOfActions(path)
+
+    return max(h1,h2) 
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -528,7 +552,18 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
     '''
+    ## Coût de la nourriture la plus eloingée de l'état courant 
+    foods = foodGrid.asList()                                   
+    h1 = 0
+    for food in foods: 
+        foodCostList = []                                        
+        if (position,food) not in problem.heuristicInfo:            
+            searchProblem = PositionSearchProblem(problem.startingGameState, start = position, goal = food, warn=False, visualize=False) 
+            cost = len(search.bfs(searchProblem))                  
+            problem.heuristicInfo.setdefault((position,food),cost)
+            foodCostList.append(cost)
+        else: foodCostList.append(problem.heuristicInfo[(position,food)])
+        foodCostList.sort()
+        h1 = foodCostList[-1]
 
-
-    return 0
-
+    return h1              
