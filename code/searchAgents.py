@@ -360,18 +360,6 @@ class CornersProblem(search.SearchProblem):
                 INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
             '''    
 
-            
-            
-            # dx, dy = Actions.directionToVector(action)
-            # nextx, nexty = int(x + dx), int(y + dy)
-            # hitsWall = self.walls[nextx][nexty]
-            # if not hitsWall : # frappe pas de mur
-            #     nextPosition = (nextx, nexty)
-            #     newCoinVisiter = list(coinVisiter)
-            #     if nextPosition in self.corners: # si un des coins
-            #         newCoinVisiter.append(nextPosition)
-                    
-            #     successors.append(( ( nextPosition, tuple(newCoinVisiter) ),action, 1)) 
             x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
@@ -432,6 +420,7 @@ def cornersHeuristic(state, problem):
     
     h1 = 0
     h2 = 0
+    # h3 = 0
 
     stateX, stateY = state[0]
     visitedCorners = state[1]
@@ -453,7 +442,13 @@ def cornersHeuristic(state, problem):
         NearestPathCornerProblem = PositionSearchProblem(problem.startingState, start=state[0], goal=corner, warn=False, visualize=False)
         path = search.bfs(NearestPathCornerProblem)
         h2 += NearestPathCornerProblem.getCostOfActions(path)
+    
+    # ## H3
+    # if notVisitedCorners : 
+    #     closest_corner = min(notVisitedCorners, key=lambda c: abs(c[0] - stateX) + abs(c[1] - stateY))
+    #     h3 =  abs(closest_corner[0] - stateX) + abs(closest_corner[1] - stateY)
 
+    
     return max(h1,h2) 
 
 
@@ -557,13 +552,14 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     h1 = 0
     for food in foods: 
         foodCostList = []                                        
-        if (position,food) not in problem.heuristicInfo:            
+        if (position,food) not in problem.heuristicInfo: # voir si le chemin est deja dans la memoire           
+            #utilisation de bfs pour trouver le meilleur chemin
             searchProblem = PositionSearchProblem(problem.startingGameState, start = position, goal = food, warn=False, visualize=False) 
             cost = len(search.bfs(searchProblem))                  
-            problem.heuristicInfo.setdefault((position,food),cost)
+            problem.heuristicInfo.setdefault((position,food),cost) # ajout de la solution 
             foodCostList.append(cost)
         else: foodCostList.append(problem.heuristicInfo[(position,food)])
-        foodCostList.sort()
-        h1 = foodCostList[-1]
+        foodCostList.sort() #trie la liste
+        h1 = foodCostList[-1] #prend le dernier element
 
     return h1              
