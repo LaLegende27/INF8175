@@ -431,17 +431,19 @@ def cornersHeuristic(state, problem):
         return 0
     
     # H1 : La somme du coût de la distance manhattan de chaque coins non visité
-    for corner in notVisitedCorners:
-        cornerX, cornerY = corner
-        distance = abs(cornerX - stateX) + abs(cornerY - stateY)
-        h1+= distance
+    # for corner in notVisitedCorners:
+    #     cornerX, cornerY = corner
+    #     distance = abs(cornerX - stateX) + abs(cornerY - stateY)
+    #     h1+= distance
 
     ## H2 : La somme du coût de la distance de chaque coins non visité en utilisant un bfs
-    h2 = 0
+    h2 = []
     for corner in notVisitedCorners:
         NearestPathCornerProblem = PositionSearchProblem(problem.startingState, start=state[0], goal=corner, warn=False, visualize=False)
         path = search.bfs(NearestPathCornerProblem)
-        h2 += NearestPathCornerProblem.getCostOfActions(path)
+        h2.append(NearestPathCornerProblem.getCostOfActions(path))
+    
+    h2.sort()
     
     # ## H3
     # if notVisitedCorners : 
@@ -449,7 +451,7 @@ def cornersHeuristic(state, problem):
     #     h3 =  abs(closest_corner[0] - stateX) + abs(closest_corner[1] - stateY)
 
     
-    return max(h1,h2) 
+    return h2[-1]
 
 
 class AStarCornersAgent(SearchAgent):
@@ -550,8 +552,8 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     ## Coût de la nourriture la plus eloingée de l'état courant 
     foods = foodGrid.asList()                                   
     h1 = 0
+    foodCostList = []                                        
     for food in foods: 
-        foodCostList = []                                        
         if (position,food) not in problem.heuristicInfo: # voir si le chemin est deja dans la memoire           
             #utilisation de bfs pour trouver le meilleur chemin
             searchProblem = PositionSearchProblem(problem.startingGameState, start = position, goal = food, warn=False, visualize=False) 

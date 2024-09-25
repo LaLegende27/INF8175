@@ -778,6 +778,7 @@ class CornerHeuristicPacman(testClasses.TestCase):
         game_state.initialize(lay, 0)
         problem = searchAgents.CornersProblem(game_state)
         start_state = problem.getStartState()
+        print("cost: ", true_cost)
         if searchAgents.cornersHeuristic(start_state, problem) > true_cost:
             grades.addMessage('FAIL: Inadmissible heuristic')
             return False
