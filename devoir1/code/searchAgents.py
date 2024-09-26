@@ -295,8 +295,8 @@ class CornersProblem(search.SearchProblem):
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
         self.startingState = startingGameState
-        self._visited, self._visitedlist, self._expanded, self.visualize= {}, [], 0 , True # DO NOT CHANGE
-
+        self._visited, self._visitedlist, self._expanded, self.visualize = {}, [], 0, True # DO NOT CHANGE
+        
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -323,8 +323,6 @@ class CornersProblem(search.SearchProblem):
                 state[1].append(state[0])
             isGoal = len(state[1]) == 4
 
-        # position, coinVisiter = state
-        # return set(coinVisiter) == set(self.corners)
         # For display purposes only
         if isGoal and self.visualize:
             self._visitedlist.append(state[0])
@@ -346,8 +344,6 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-        (x, y), coinVisiter = state
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -372,13 +368,6 @@ class CornersProblem(search.SearchProblem):
                     if not nextState in cornerVisitedList:
                         cornerVisitedList.append(nextState)
                 successors.append(((nextState, cornerVisitedList), action, 1))
-
-            # Bookkeeping for display purposes
-            self._expanded += 1 # DO NOT CHANGE
-            if state[0] not in self._visited:
-                self._visited[state[0]] = True
-                self._visitedlist.append(state[0])
-
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -417,41 +406,51 @@ def cornersHeuristic(state, problem):
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 6 ICI
     '''
-    
-    h1 = 0
-    h2 = 0
-    # h3 = 0
+    h = 0
 
-    stateX, stateY = state[0]
-    visitedCorners = state[1]
+    currentPos, visitedCorners = state
     
     notVisitedCorners = [corner for corner in corners if corner not in visitedCorners]
 
     if len(notVisitedCorners) == 0:
         return 0
     
-    # H1 : La somme du coût de la distance manhattan de chaque coins non visité
-    # for corner in notVisitedCorners:
-    #     cornerX, cornerY = corner
-    #     distance = abs(cornerX - stateX) + abs(cornerY - stateY)
-    #     h1+= distance
+    minCost = float('inf')
+    closestCorner = None
 
-    ## H2 : La somme du coût de la distance de chaque coins non visité en utilisant un bfs
-    h2 = []
+    ## Trouver coin le plus proche avec BFS
     for corner in notVisitedCorners:
-        NearestPathCornerProblem = PositionSearchProblem(problem.startingState, start=state[0], goal=corner, warn=False, visualize=False)
+        NearestPathCornerProblem = PositionSearchProblem(problem.startingState, start=currentPos, goal=corner, warn=False, visualize=False)
         path = search.bfs(NearestPathCornerProblem)
-        h2.append(NearestPathCornerProblem.getCostOfActions(path))
-    
-    h2.sort()
-    
-    # ## H3
-    # if notVisitedCorners : 
-    #     closest_corner = min(notVisitedCorners, key=lambda c: abs(c[0] - stateX) + abs(c[1] - stateY))
-    #     h3 =  abs(closest_corner[0] - stateX) + abs(closest_corner[1] - stateY)
+        cost = NearestPathCornerProblem.getCostOfActions(path)
+        
+        if cost < minCost: 
+            closestCorner = corner
+            minCost = cost
 
-    
-    return h2[-1]
+    h += minCost
+
+    remainingCorners = [corner for corner in notVisitedCorners if corner != closestCorner]
+
+    #Faire la distance de manhattan pour determiner la suite des coins a visiter avec leur cout
+    while remainingCorners:
+        minCost = float('inf')
+        nextCorner = None
+
+        for corner in remainingCorners:
+            goal = type('', (), {})() 
+            goal.goal = corner
+            cost = manhattanHeuristic(closestCorner, goal)
+
+            if cost < minCost:
+                minCost = cost
+                nextCorner = corner
+        h += minCost
+
+        closestCorner = nextCorner
+        remainingCorners.remove(nextCorner)
+
+    return h
 
 
 class AStarCornersAgent(SearchAgent):
