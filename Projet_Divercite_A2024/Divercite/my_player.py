@@ -87,7 +87,7 @@ class MyPlayer(PlayerDivercite):
                 
         
                 return (v_prime,bestAction)
-            return max_value(currentState, -math.inf, math.inf, 6)[1]
+            return max_value(currentState, -math.inf, math.inf, 4)[1]
         
         def my_heuristic(state: GameState):
             
@@ -99,8 +99,6 @@ class MyPlayer(PlayerDivercite):
             
             Returns : 
                 un score evaluer par l'heuristique. 
-
-
 
             '''
             
